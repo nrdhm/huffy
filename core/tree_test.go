@@ -6,40 +6,40 @@ import (
 )
 
 type newTreeTest struct {
-	input    map[Symbol]int
+	input    []symbolCount
 	expected map[Symbol]Code
 }
 
 var newTreeTestCases = []newTreeTest{
 	{
-		input: map[Symbol]int{
-			" ": 26974,
-			"B": 1275,
-			"D": 2823,
-			"F": 1757,
-			"H": 3279,
-			"J": 152,
-			"L": 3114,
-			"N": 5626,
-			"P": 2195,
-			"R": 5173,
-			"T": 8375,
-			"V": 928,
-			"X": 369,
-			"Z": 60,
-			"A": 6538,
-			"C": 3115,
-			"E": 9917,
-			"G": 1326,
-			"I": 6430,
-			"K": 317,
-			"M": 1799,
-			"O": 6261,
-			"Q": 113,
-			"S": 5784,
-			"U": 2360,
-			"W": 987,
-			"Y": 1104,
+		input: []symbolCount{
+			{symbol: " ", count: 26974},
+			{symbol: "B", count: 1275},
+			{symbol: "D", count: 2823},
+			{symbol: "F", count: 1757},
+			{symbol: "H", count: 3279},
+			{symbol: "J", count: 152},
+			{symbol: "L", count: 3114},
+			{symbol: "N", count: 5626},
+			{symbol: "P", count: 2195},
+			{symbol: "R", count: 5173},
+			{symbol: "T", count: 8375},
+			{symbol: "V", count: 928},
+			{symbol: "X", count: 369},
+			{symbol: "Z", count: 60},
+			{symbol: "A", count: 6538},
+			{symbol: "C", count: 3115},
+			{symbol: "E", count: 9917},
+			{symbol: "G", count: 1326},
+			{symbol: "I", count: 6430},
+			{symbol: "K", count: 317},
+			{symbol: "M", count: 1799},
+			{symbol: "O", count: 6261},
+			{symbol: "Q", count: 113},
+			{symbol: "S", count: 5784},
+			{symbol: "U", count: 2360},
+			{symbol: "W", count: 987},
+			{symbol: "Y", count: 1104},
 		},
 		expected: map[Symbol]Code{
 			" ": "01",
@@ -77,7 +77,7 @@ var newTreeTestCases = []newTreeTest{
 func TestNewTree(t *testing.T) {
 	for _, test := range newTreeTestCases {
 		tree := NewTree(test.input)
-		actual := GetCompressTable(tree)
+		actual := getCompressTable(tree)
 		if !reflect.DeepEqual(actual, test.expected) {
 			t.Errorf("NewTree test [%v], expected [%v], actual [%v]", test.input, test.expected, actual)
 		}
@@ -88,42 +88,7 @@ func BenchmarkNewTree(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, test := range newTreeTestCases {
 			tree := NewTree(test.input)
-			GetCompressTable(tree)
-		}
-	}
-}
-
-type fromCompressTableTest struct {
-	input    map[Symbol]Code
-	expected *HuffmanTree
-}
-
-var fromCompressTableTestCases = []fromCompressTableTest{
-	{input: map[Symbol]Code{}, expected: nil},
-	{
-		input: map[Symbol]Code{"A": "01", "B": "010", "C": "10", "": "011"},
-		expected: &HuffmanTree{
-			zeroBranch: &HuffmanTree{
-				oneBranch: &HuffmanTree{symbol: "A", zeroBranch: &HuffmanTree{symbol: "B"}, oneBranch: &HuffmanTree{eof: true}},
-			},
-			oneBranch: &HuffmanTree{zeroBranch: &HuffmanTree{symbol: "C"}},
-		},
-	},
-}
-
-func TestFromCompressTable(t *testing.T) {
-	for _, test := range fromCompressTableTestCases {
-		actual := FromCompressTable(test.input)
-		if !actual.equal(test.expected) {
-			t.Errorf("FromCompressTable test [%v], expected [%v], actual [%v]", test.input, test.expected, actual)
-		}
-	}
-}
-
-func BenchmarkFromCompressTable(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		for _, test := range fromCompressTableTestCases {
-			FromCompressTable(test.input)
+			getCompressTable(tree)
 		}
 	}
 }

@@ -1,5 +1,10 @@
 package core
 
+import (
+	"bytes"
+	"sort"
+)
+
 func tokenize(text string) chan Symbol {
 	ch := make(chan Symbol)
 	go func() {
@@ -11,15 +16,32 @@ func tokenize(text string) chan Symbol {
 	return ch
 }
 
-func CalcOccurrences(text string) map[Symbol]int {
+type symbolCount struct {
+	symbol Symbol
+	count  int
+}
+
+func countSymbols(text string) []symbolCount {
 	ps := map[Symbol]int{}
 	for sym := range tokenize(text) {
 		ps[sym]++
 	}
-	return ps
+	sc := make([]symbolCount, len(ps))
+	for sym, cnt := range ps {
+		sc = append(sc, symbolCount{symbol: sym, count: cnt})
+	}
+	sort.Slice(sc, func(i, j int) bool {
+		if sc[i].count == sc[j].count {
+			return sc[i].symbol < sc[j].symbol
+		}
+		return sc[i].count < sc[j].count
+	})
+	return sc
 }
 
-func textToCodeBits(text string, table map[Symbol]Code) chan uint8 {
+// textToCodeBits emits Huffman codes bit by bit
+func textToCodeBits(text string, tree *HuffTree) chan uint8 {
+	table := getCompressTable(tree)
 	ch := make(chan uint8)
 	go func() {
 		codes := []Code{}
@@ -48,4 +70,53 @@ func merge(a, b map[Symbol]Code) map[Symbol]Code {
 		a[k] = v
 	}
 	return a
+}
+
+// emitBytes packs given bits to bytes
+func emitBytes(bits <-chan uint8) chan byte {
+	ch := make(chan byte)
+	go func() {
+		var (
+			b  byte
+			bi uint8
+		)
+		for bit := range bits {
+			if bi == 8 {
+				ch <- b
+				bi = 0
+				b = 0
+			}
+			if bit == 1 {
+				b |= (1 << bi)
+			}
+			bi++
+		}
+		if bi > 0 {
+			ch <- b
+		}
+		close(ch)
+	}()
+	return ch
+}
+
+// emitBytes unpacks given bytes to bits
+func emitBits(buf *bytes.Buffer) chan uint8 {
+	ch := make(chan uint8)
+	go func() {
+		for {
+			b, err := buf.ReadByte()
+			if err != nil {
+				break
+			}
+			for i := uint(0); i < 8; i++ {
+				if b&(1<<i) > 0 {
+					ch <- 1
+				} else {
+					ch <- 0
+				}
+			}
+		}
+		close(ch)
+	}()
+	return ch
 }

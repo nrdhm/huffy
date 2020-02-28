@@ -3,130 +3,72 @@ package core
 import (
 	"bytes"
 	"encoding/gob"
-	"fmt"
 )
 
+// Compress encodes text with Huffman codes
 func Compress(text string) (string, error) {
-	var (
-		out bytes.Buffer
-	)
-	ps := CalcOccurrences(text)
+	if len(text) == 0 {
+		return "", nil
+	}
+	var out bytes.Buffer
+	ps := countSymbols(text)
 	tree := NewTree(ps)
-	table := GetCompressTable(tree)
-	header, err := makeHeader(table)
+	err := writeHeader(tree, &out)
 	if err != nil {
 		return "", err
 	}
-	out.WriteString(string(header))
-	bits := textToCodeBits(text, table)
+	bits := textToCodeBits(text, tree)
 	for b := range emitBytes(bits) {
 		out.WriteByte(b)
 	}
 	return out.String(), nil
 }
 
-func emitBytes(bits <-chan uint8) chan byte {
-	ch := make(chan byte)
-	go func() {
-		var (
-			b  byte
-			bi uint8
-		)
-		for bit := range bits {
-			if bi == 8 {
-				ch <- b
-				bi = 0
-				b = 0
-			}
-			if bit == 1 {
-				b |= (1 << bi)
-			}
-			bi++
-		}
-		if bi > 0 {
-			ch <- b
-		}
-		close(ch)
-	}()
-	return ch
-}
-
-func emitBits(buf *bytes.Buffer) chan uint8 {
-	ch := make(chan uint8)
-	go func() {
-		for {
-			b, err := buf.ReadByte()
-			if err != nil {
-				break
-			}
-			for i := uint(0); i < 8; i++ {
-				if b&(1<<i) > 0 {
-					ch <- 1
-				} else {
-					ch <- 0
-				}
-			}
-		}
-		close(ch)
-	}()
-	return ch
-}
-
+// Decompress decodes Huffman codes to clear text
 func Decompress(compressed string) (string, error) {
-	buf := bytes.NewBufferString(compressed)
-	table, err := readHeader(buf)
+	if len(compressed) == 0 {
+		return "", nil
+	}
+	in := bytes.NewBufferString(compressed)
+	root, err := readHeader(in)
 	if err != nil {
 		return "", err
 	}
-	root := FromCompressTable(table)
-	tree := root
 	var out bytes.Buffer
-	bits := emitBits(buf)
+	bits := emitBits(in)
+	tree := root
 	for bit := range bits {
 		if bit == 1 {
-			tree = tree.oneBranch
-		} else if tree.zeroBranch != nil { // ignore trailing zeroes
-			tree = tree.zeroBranch
+			tree = tree.One
+		} else {
+			tree = tree.Zero
 		}
-		if tree == nil || tree.eof {
+		if tree == nil || tree.EOF {
 			break
 		}
-		if tree.symbol != "" {
-			out.WriteString(string(tree.symbol))
+		if tree.Sym != "" {
+			out.WriteString(string(tree.Sym))
 			tree = root
 		}
-
 	}
 	return out.String(), nil
 }
 
-func makeHeader(table map[Symbol]Code) ([]byte, error) {
-	var b bytes.Buffer
-	_, err := b.WriteString("HUF|")
+func writeHeader(tree *HuffTree, buf *bytes.Buffer) error {
+	enc := gob.NewEncoder(buf)
+	err := enc.Encode(tree)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	enc := gob.NewEncoder(&b)
-	err = enc.Encode(table)
-	if err != nil {
-		return nil, err
-	}
-	return b.Bytes(), nil
+	return nil
 }
 
-func readHeader(b *bytes.Buffer) (map[Symbol]Code, error) {
-	magic, err := b.ReadString('|')
-	if err != nil {
-		return nil, err
-	}
-	if magic != "HUF|" {
-		return nil, fmt.Errorf("invalid magic: %v", magic)
-	}
+func readHeader(b *bytes.Buffer) (*HuffTree, error) {
 	dec := gob.NewDecoder(b)
-	var m map[Symbol]Code
-	err = dec.Decode(&m)
+	var tree *HuffTree
+	err := dec.Decode(&tree)
 	if err != nil {
 		return nil, err
 	}
-	return m, nil
+	return tree, nil
 }
