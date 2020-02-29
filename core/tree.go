@@ -22,11 +22,11 @@ type HuffTree struct {
 }
 
 // NewTree creates a new Huffman tree from a given table of symbols occurences
-func NewTree(symbolsCnt []symbolCount) *HuffTree {
+func NewTree(symbolsCnt []SymbolCount) *HuffTree {
 	if len(symbolsCnt) == 0 {
 		return nil
 	}
-	trees := treeHeap{&HuffTree{EOF: true}}
+	trees := treeHeap{&HuffTree{EOF: true, Cnt: 1}}
 	for _, sc := range symbolsCnt {
 		tree := &HuffTree{Zero: nil, One: nil, Sym: sc.symbol, Cnt: sc.count}
 		trees = append(trees, tree)
@@ -39,6 +39,14 @@ func NewTree(symbolsCnt []symbolCount) *HuffTree {
 		heap.Push(&trees, united)
 	}
 	return trees[0]
+}
+
+// GetSym returns string represantion of the node symbol
+func (ht *HuffTree) GetSym() string {
+	if ht.EOF {
+		return "<EOF>"
+	}
+	return string(ht.Sym)
 }
 
 func (ht *HuffTree) String() string {
@@ -116,6 +124,7 @@ func getTable(tree *HuffTree, codePrefix string) map[Symbol]Code {
 	return m
 }
 
-func getCompressTable(tree *HuffTree) map[Symbol]Code {
+// GetCompressTable returns table with Huffman codes used to compress some text
+func GetCompressTable(tree *HuffTree) map[Symbol]Code {
 	return getTable(tree, "")
 }

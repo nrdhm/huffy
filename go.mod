@@ -1,4 +1,4 @@
-module github.com/nrdhm/huff
+module github.com/nrdhm/huffy
 
 go 1.12
 

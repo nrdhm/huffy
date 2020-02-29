@@ -13,8 +13,9 @@ var (
 	fileOut  *os.File = os.Stdout
 	err      error
 )
+
 var rootCmd = &cobra.Command{
-	Use:   "huff",
+	Use:   "huffy",
 	Short: "huffman compressor",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if fnameIn != "" && fnameIn != "-" {

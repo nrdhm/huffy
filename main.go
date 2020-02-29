@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/nrdhm/huff/cmd"
+	"github.com/nrdhm/huffy/cmd"
 )
 
 func main() {

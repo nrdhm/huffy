@@ -6,13 +6,13 @@ import (
 )
 
 type newTreeTest struct {
-	input    []symbolCount
+	input    []SymbolCount
 	expected map[Symbol]Code
 }
 
 var newTreeTestCases = []newTreeTest{
 	{
-		input: []symbolCount{
+		input: []SymbolCount{
 			{symbol: " ", count: 26974},
 			{symbol: "B", count: 1275},
 			{symbol: "D", count: 2823},
@@ -77,7 +77,7 @@ var newTreeTestCases = []newTreeTest{
 func TestNewTree(t *testing.T) {
 	for _, test := range newTreeTestCases {
 		tree := NewTree(test.input)
-		actual := getCompressTable(tree)
+		actual := GetCompressTable(tree)
 		if !reflect.DeepEqual(actual, test.expected) {
 			t.Errorf("NewTree test [%v], expected [%v], actual [%v]", test.input, test.expected, actual)
 		}
@@ -88,7 +88,7 @@ func BenchmarkNewTree(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, test := range newTreeTestCases {
 			tree := NewTree(test.input)
-			getCompressTable(tree)
+			GetCompressTable(tree)
 		}
 	}
 }

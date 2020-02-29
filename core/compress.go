@@ -11,7 +11,7 @@ func Compress(text string) (string, error) {
 		return "", nil
 	}
 	var out bytes.Buffer
-	ps := countSymbols(text)
+	ps := CountSymbols(text)
 	tree := NewTree(ps)
 	err := writeHeader(tree, &out)
 	if err != nil {

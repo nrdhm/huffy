@@ -3,7 +3,7 @@ package cmd
 import (
 	"io/ioutil"
 
-	"github.com/nrdhm/huff/core"
+	"github.com/nrdhm/huffy/core"
 	"github.com/spf13/cobra"
 )
 

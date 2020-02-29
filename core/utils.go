@@ -16,19 +16,21 @@ func tokenize(text string) chan Symbol {
 	return ch
 }
 
-type symbolCount struct {
+// SymbolCount holds count of a symbol
+type SymbolCount struct {
 	symbol Symbol
 	count  int
 }
 
-func countSymbols(text string) []symbolCount {
+// CountSymbols counts occurences of symbols
+func CountSymbols(text string) []SymbolCount {
 	ps := map[Symbol]int{}
 	for sym := range tokenize(text) {
 		ps[sym]++
 	}
-	sc := make([]symbolCount, len(ps))
+	sc := []SymbolCount{}
 	for sym, cnt := range ps {
-		sc = append(sc, symbolCount{symbol: sym, count: cnt})
+		sc = append(sc, SymbolCount{symbol: sym, count: cnt})
 	}
 	sort.Slice(sc, func(i, j int) bool {
 		if sc[i].count == sc[j].count {
@@ -41,7 +43,7 @@ func countSymbols(text string) []symbolCount {
 
 // textToCodeBits emits Huffman codes bit by bit
 func textToCodeBits(text string, tree *HuffTree) chan uint8 {
-	table := getCompressTable(tree)
+	table := GetCompressTable(tree)
 	ch := make(chan uint8)
 	go func() {
 		codes := []Code{}
