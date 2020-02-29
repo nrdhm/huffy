@@ -23,7 +23,7 @@ var compressTestCases = []compressTest{
 
 func TestCompress(t *testing.T) {
 	for _, test := range compressTestCases {
-		compressed, err := Compress(test.clear)
+		compressed, err := Compress(DefaultContext, test.clear)
 		actual := base64.StdEncoding.EncodeToString([]byte(compressed))
 		if err != nil {
 			t.Error(err)
@@ -37,7 +37,7 @@ func TestCompress(t *testing.T) {
 func BenchmarkCompress(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, test := range compressTestCases {
-			Compress(test.clear)
+			Compress(DefaultContext, test.clear)
 		}
 	}
 }

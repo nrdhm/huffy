@@ -6,18 +6,18 @@ import (
 )
 
 // Compress encodes text with Huffman codes
-func Compress(text string) (string, error) {
+func Compress(ctx Context, text string) (string, error) {
 	if len(text) == 0 {
 		return "", nil
 	}
 	var out bytes.Buffer
-	ps := CountSymbols(text)
+	ps := CountSymbols(ctx, text)
 	tree := NewTree(ps)
 	err := writeHeader(tree, &out)
 	if err != nil {
 		return "", err
 	}
-	bits := textToCodeBits(text, tree)
+	bits := textToCodeBits(ctx, text, tree)
 	for b := range emitBytes(bits) {
 		out.WriteByte(b)
 	}

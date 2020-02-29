@@ -15,7 +15,8 @@ var compressCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-		huf, err := core.Compress(string(data))
+		ctx := core.Context{MaxSymbolLen: maxSymLen}
+		huf, err := core.Compress(ctx, string(data))
 		if err != nil {
 			panic(err)
 		}

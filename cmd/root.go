@@ -7,11 +7,12 @@ import (
 )
 
 var (
-	fnameIn  string
-	fnameOut string
-	fileIn   *os.File = os.Stdin
-	fileOut  *os.File = os.Stdout
-	err      error
+	fnameIn   string
+	fnameOut  string
+	fileIn    *os.File = os.Stdin
+	fileOut   *os.File = os.Stdout
+	err       error
+	maxSymLen int
 )
 
 var rootCmd = &cobra.Command{
@@ -35,7 +36,8 @@ var rootCmd = &cobra.Command{
 
 // Execute runs the program
 func Execute() {
-	rootCmd.Execute()
 	rootCmd.PersistentFlags().StringVar(&fnameIn, "in", "-", "file to read from")
 	rootCmd.PersistentFlags().StringVar(&fnameOut, "out", "-", "file to write to")
+	rootCmd.PersistentFlags().IntVar(&maxSymLen, "sym-len", 1, "make Huffman codes for digrams, trigrams or whatever")
+	rootCmd.Execute()
 }

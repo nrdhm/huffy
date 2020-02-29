@@ -23,7 +23,8 @@ var printTreeCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-		count := core.CountSymbols(string(data))
+		ctx := core.Context{MaxSymbolLen: maxSymLen}
+		count := core.CountSymbols(ctx, string(data))
 		tree := core.NewTree(count)
 		printTree(tree, "")
 		fmt.Println()
@@ -58,7 +59,8 @@ var printTableCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-		count := core.CountSymbols(string(data))
+		ctx := core.Context{MaxSymbolLen: maxSymLen}
+		count := core.CountSymbols(ctx, string(data))
 		tree := core.NewTree(count)
 		table := core.GetCompressTable(tree)
 		pairs := []symCode{}

@@ -5,11 +5,27 @@ import (
 	"sort"
 )
 
-func tokenize(text string) chan Symbol {
+// Context holds some settings
+type Context struct {
+	MaxSymbolLen int
+}
+
+// DefaultContext is the Context with default settings
+var DefaultContext Context = Context{
+	MaxSymbolLen: 1,
+}
+
+func tokenize(ctx Context, text string) chan Symbol {
 	ch := make(chan Symbol)
+	maxLen := DefaultContext.MaxSymbolLen
+	if ctx.MaxSymbolLen > 0 {
+		maxLen = ctx.MaxSymbolLen
+	}
 	go func() {
-		for _, r := range text {
-			ch <- Symbol(r)
+		for len(text) > 0 {
+			sym := text[:maxLen]
+			text = text[maxLen:]
+			ch <- Symbol(sym)
 		}
 		close(ch)
 	}()
@@ -23,9 +39,9 @@ type SymbolCount struct {
 }
 
 // CountSymbols counts occurences of symbols
-func CountSymbols(text string) []SymbolCount {
+func CountSymbols(ctx Context, text string) []SymbolCount {
 	ps := map[Symbol]int{}
-	for sym := range tokenize(text) {
+	for sym := range tokenize(ctx, text) {
 		ps[sym]++
 	}
 	sc := []SymbolCount{}
@@ -42,12 +58,12 @@ func CountSymbols(text string) []SymbolCount {
 }
 
 // textToCodeBits emits Huffman codes bit by bit
-func textToCodeBits(text string, tree *HuffTree) chan uint8 {
+func textToCodeBits(ctx Context, text string, tree *HuffTree) chan uint8 {
 	table := GetCompressTable(tree)
 	ch := make(chan uint8)
 	go func() {
 		codes := []Code{}
-		for sym := range tokenize(text) {
+		for sym := range tokenize(ctx, text) {
 			code := table[sym]
 			codes = append(codes, code)
 		}
