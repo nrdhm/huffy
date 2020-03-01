@@ -3,6 +3,7 @@ package core
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
 )
 
 // Compress encodes text with Huffman codes
@@ -15,7 +16,7 @@ func Compress(ctx Context, text string) (string, error) {
 	tree := NewTree(ps)
 	err := writeHeader(tree, &out)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to writed header: %v", err)
 	}
 	bits := textToCodeBits(ctx, text, tree)
 	for b := range emitBytes(bits) {
@@ -32,7 +33,7 @@ func Decompress(compressed string) (string, error) {
 	in := bytes.NewBufferString(compressed)
 	root, err := readHeader(in)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("could not read header: %v", err)
 	}
 	var out bytes.Buffer
 	bits := emitBits(in)
