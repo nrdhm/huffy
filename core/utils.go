@@ -21,10 +21,11 @@ func tokenize(ctx Context, text string) chan Symbol {
 	if ctx.MaxSymbolLen > 0 {
 		maxLen = ctx.MaxSymbolLen
 	}
+	runes := []rune(text)
 	go func() {
-		for len(text) > 0 {
-			sym := text[:maxLen]
-			text = text[maxLen:]
+		for len(runes) > 0 {
+			sym := runes[:maxLen]
+			runes = runes[maxLen:]
 			ch <- Symbol(sym)
 		}
 		close(ch)

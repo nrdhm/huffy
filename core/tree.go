@@ -41,7 +41,7 @@ func NewTree(symbolsCnt []SymbolCount) *HuffTree {
 	return trees[0]
 }
 
-// GetSym returns string represantion of the node symbol
+// GetSym returns symbol the node is holding
 func (ht *HuffTree) GetSym() string {
 	if ht.EOF {
 		return "<EOF>"
