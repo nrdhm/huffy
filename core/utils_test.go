@@ -20,7 +20,17 @@ var tokenizeTestCases = []tokenizeTest{
 	{
 		"a",
 		Context{MaxSymbolLen: 3},
+		[]Symbol{},
+	},
+	{
+		"a",
+		Context{MaxSymbolLen: 1},
 		[]Symbol{"a"},
+	},
+	{
+		"quick",
+		Context{MaxSymbolLen: 3},
+		[]Symbol{"qui", "uic", "ick"},
 	},
 }
 
