@@ -24,8 +24,12 @@ func tokenize(ctx Context, text string) chan Symbol {
 	runes := []rune(text)
 	go func() {
 		for len(runes) > 0 {
-			sym := runes[:maxLen]
-			runes = runes[maxLen:]
+			upper := maxLen
+			if upper > len(runes) {
+				upper = len(runes)
+			}
+			sym := runes[:upper]
+			runes = runes[upper:]
 			ch <- Symbol(sym)
 		}
 		close(ch)
@@ -138,4 +142,12 @@ func emitBits(buf *bytes.Buffer) chan uint8 {
 		close(ch)
 	}()
 	return ch
+}
+
+func symChanToArray(ch chan Symbol) []Symbol {
+	a := []Symbol{}
+	for sym := range ch {
+		a = append(a, sym)
+	}
+	return a
 }
