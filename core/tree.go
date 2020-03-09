@@ -28,7 +28,7 @@ func NewTree(symbolsCnt []SymbolCount) *HuffTree {
 	}
 	trees := treeHeap{&HuffTree{EOF: true, Cnt: 1}}
 	for _, sc := range symbolsCnt {
-		tree := &HuffTree{Zero: nil, One: nil, Sym: sc.symbol, Cnt: sc.count}
+		tree := &HuffTree{Zero: nil, One: nil, Sym: sc.Symbol, Cnt: sc.Count}
 		trees = append(trees, tree)
 	}
 	heap.Init(&trees)

@@ -36,8 +36,8 @@ func tokenize(ctx Context, text string) chan Symbol {
 
 // SymbolCount holds count of a symbol
 type SymbolCount struct {
-	symbol Symbol
-	count  int
+	Symbol Symbol
+	Count  int
 }
 
 // CountSymbols counts occurences of symbols
@@ -48,13 +48,13 @@ func CountSymbols(ctx Context, text string) []SymbolCount {
 	}
 	sc := []SymbolCount{}
 	for sym, cnt := range ps {
-		sc = append(sc, SymbolCount{symbol: sym, count: cnt})
+		sc = append(sc, SymbolCount{Symbol: sym, Count: cnt})
 	}
 	sort.Slice(sc, func(i, j int) bool {
-		if sc[i].count == sc[j].count {
-			return sc[i].symbol < sc[j].symbol
+		if sc[i].Count == sc[j].Count {
+			return sc[i].Symbol < sc[j].Symbol
 		}
-		return sc[i].count < sc[j].count
+		return sc[i].Count < sc[j].Count
 	})
 	return sc
 }
